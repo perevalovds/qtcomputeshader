@@ -29,12 +29,10 @@ int main(int argc, char **argv)
 
     OpenGLWindow window;
     window.setFormat(format);
-    window.resize(640, 480);
-    window.show();
 
+    window.compute();
 
-
-    return app.exec();
+    //return app.exec();
 
 
     //window.compute();

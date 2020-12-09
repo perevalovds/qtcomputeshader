@@ -11,12 +11,12 @@
 
 
 //---------------------------------------------------------------------
-OpenGLWindow::OpenGLWindow(QWindow *parent)
-    : QWindow(parent)
+OpenGLWindow::OpenGLWindow()
+    : QOffscreenSurface()
     , m_context(0)
     , m_device(0)
 {
-    setSurfaceType(QWindow::OpenGLSurface);
+    //setSurfaceType(QWindow::OpenGLSurface);
 }
 
 //---------------------------------------------------------------------
@@ -25,10 +25,10 @@ OpenGLWindow::~OpenGLWindow()
     delete m_device;
 }
 
-
 //---------------------------------------------------------------------
 void OpenGLWindow::initialize_context() {
     if (!m_context) {
+        create();   //create surface
         m_context = new QOpenGLContext(this);
         m_context->setFormat(requestedFormat());  //it's set in main
 
@@ -46,44 +46,9 @@ void OpenGLWindow::initialize_context() {
 
         initializeOpenGLFunctions();
 
-        extra = new QOpenGLExtraFunctions(m_context);
-        extra->initializeOpenGLFunctions();
-
         gl43 = m_context->versionFunctions<QOpenGLFunctions_4_3_Core>();
         gl_assert("Error creating gl43");
     }
-}
-
-//---------------------------------------------------------------------
-void OpenGLWindow::renderNow()
-{
-    //qDebug() << "renderNow";
-    if (!isExposed())
-        return;
-
-    initialize_context();
-
-    //switch to using context
-    m_context->makeCurrent(this);
-
-    //computing!
-    compute();
-
-    //output to screen
-    m_context->swapBuffers(this);
-
-    //add request for immediate re-render to queue
-    //if (m_animating)
-    //    renderLater();
-}
-//---------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------
-void OpenGLWindow::renderLater()
-{
-    //qDebug() << "renderLater";
-    requestUpdate();
 }
 
 //---------------------------------------------------------------------
@@ -99,31 +64,6 @@ void OpenGLWindow::gl_assert(QString message) {
 
 }
 
-
-//---------------------------------------------------------------------
-bool OpenGLWindow::event(QEvent *event)
-{
-
-    switch (event->type()) {
-    case QEvent::UpdateRequest:
-        //qDebug() << "event";
-        renderNow();
-        return true;
-    default:
-        return QWindow::event(event);
-    }
-}
-
-//---------------------------------------------------------------------
-void OpenGLWindow::exposeEvent(QExposeEvent *event)
-{
-    //qDebug() << "exposeEvent";
-    Q_UNUSED(event);
-
-    if (isExposed())
-        renderNow();
-}
-
 //---------------------------------------------------------------------
 void OpenGLWindow::xassert(bool condition, QString message) {
     if (!condition) {
@@ -134,6 +74,9 @@ void OpenGLWindow::xassert(bool condition, QString message) {
 //---------------------------------------------------------------------
 //Based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
 void OpenGLWindow::compute() {
+    initialize_context();
+
+    m_context->makeCurrent(this);
 
     // Compute shader init
     QString shader_file = ":/shader/compute_shader.csh";
@@ -148,7 +91,8 @@ void OpenGLWindow::compute() {
     float bbb[N];
 
     // SSBO init buffer
-    m_context->makeCurrent(this);
+
+
     xassert(SSBO.create(), "Error at SSBO.create()");
     xassert(SSBO.bind(), "Error at SSBO.bind()");
     SSBO.allocate(bbb, sizeof(bbb));

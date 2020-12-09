@@ -1,5 +1,6 @@
 //general
 #include <QtGui/QWindow>
+#include <QOffscreenSurface>
 #include <QtGui/QOpenGLFunctions>
 
 //specifics
@@ -18,24 +19,14 @@ class QOpenGLContext;
 class QOpenGLPaintDevice;
 QT_END_NAMESPACE
 
-class OpenGLWindow : public QWindow, protected QOpenGLFunctions
+class OpenGLWindow : public QOffscreenSurface, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    explicit OpenGLWindow(QWindow *parent = 0);
+    explicit OpenGLWindow();
     ~OpenGLWindow();
 
     void compute();
-
-
-public slots:
-    void renderLater();
-    void renderNow();
-
-protected:
-    bool event(QEvent *event) override;
-
-    void exposeEvent(QExposeEvent *event) override;
 
 private:
     QOpenGLContext *m_context = nullptr;
