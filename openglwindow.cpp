@@ -11,12 +11,15 @@
 
 
 //---------------------------------------------------------------------
+//Note: QOffscreenSurface can work in non-main thread,
+//but its "create" must be called from main thread
+
 OpenGLWindow::OpenGLWindow()
     : QOffscreenSurface()
     , m_context(0)
     , m_device(0)
 {
-    //setSurfaceType(QWindow::OpenGLSurface);
+
 }
 
 //---------------------------------------------------------------------
@@ -28,17 +31,19 @@ OpenGLWindow::~OpenGLWindow()
 //---------------------------------------------------------------------
 void OpenGLWindow::initialize_context() {
     if (!m_context) {
-        create();   //create surface
-        m_context = new QOpenGLContext(this);
-        m_context->setFormat(requestedFormat());  //it's set in main
+        QSurfaceFormat format;
+        format.setSamples(16);
 
-        /*format.setSamples(16);
         format.setMajorVersion(4);
         format.setMinorVersion(3);
-        format.setProfile(QSurfaceFormat::CoreProfile);
-        format.setOption(QSurfaceFormat::DebugContext);
-        */
+        //format.setProfile(QSurfaceFormat::CoreProfile);
+        //format.setOption(QSurfaceFormat::DebugContext);
+        setFormat(format);
 
+        create();   //create surface
+
+        m_context = new QOpenGLContext(this);
+        m_context->setFormat(requestedFormat());  //it's our "format"
         m_context->create();
 
         //switch to using context
