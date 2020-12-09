@@ -25,13 +25,6 @@ public:
     explicit OpenGLWindow(QWindow *parent = 0);
     ~OpenGLWindow();
 
-    virtual void render(QPainter *painter);
-    virtual void render_app();
-
-    virtual void initialize_app();
-
-    void setAnimating(bool animating);
-
     void compute();
 
 
@@ -52,15 +45,7 @@ private:
 
     void initialize_context();
 
-    void compute_execute();
 
-
-    GLuint m_posAttr;
-    GLuint m_colAttr;
-    GLuint m_matrixUniform;
-
-    QOpenGLShaderProgram *m_program = nullptr;
-    int m_frame = 0;
 
 
     QOpenGLExtraFunctions *extra = nullptr;
@@ -70,12 +55,6 @@ private:
 
     //QOpenGLExtraFunctions
     QOpenGLFunctions_4_3_Core *gl43 = nullptr;
-
-
-
-    QOpenGLBuffer arrayBuf;
-
-    void computing();
 
     void gl_assert(QString message);
     void xassert(bool condition, QString message);
