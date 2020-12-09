@@ -28,10 +28,9 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
+    GLSurface surface;
 
-    OpenGLWindow window;
-
-    window.compute();
+    surface.compute();
 
     return 0;
 }

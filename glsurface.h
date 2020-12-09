@@ -26,12 +26,12 @@ QT_END_NAMESPACE
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
-class OpenGLWindow : public QOffscreenSurface, protected QOpenGLFunctions
+class GLSurface : public QOffscreenSurface, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    explicit OpenGLWindow();
-    ~OpenGLWindow();
+    explicit GLSurface();
+    ~GLSurface();
 
     void compute();
 

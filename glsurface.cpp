@@ -14,7 +14,7 @@
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
-OpenGLWindow::OpenGLWindow()
+GLSurface::GLSurface()
     : QOffscreenSurface()
     , m_context(0)
     , m_device(0)
@@ -23,13 +23,13 @@ OpenGLWindow::OpenGLWindow()
 }
 
 //---------------------------------------------------------------------
-OpenGLWindow::~OpenGLWindow()
+GLSurface::~GLSurface()
 {
     delete m_device;
 }
 
 //---------------------------------------------------------------------
-void OpenGLWindow::initialize_context() {
+void GLSurface::initialize_context() {
     if (!m_context) {
         QSurfaceFormat format;
         format.setSamples(16);
@@ -58,7 +58,7 @@ void OpenGLWindow::initialize_context() {
 
 //---------------------------------------------------------------------
 //check opengl errors
-void OpenGLWindow::gl_assert(QString message) {
+void GLSurface::gl_assert(QString message) {
     GLenum error = GL_NO_ERROR;
     do {
         error = gl43->glGetError();
@@ -70,7 +70,7 @@ void OpenGLWindow::gl_assert(QString message) {
 }
 
 //---------------------------------------------------------------------
-void OpenGLWindow::xassert(bool condition, QString message) {
+void GLSurface::xassert(bool condition, QString message) {
     if (!condition) {
         qDebug() << message;
     }
@@ -78,7 +78,7 @@ void OpenGLWindow::xassert(bool condition, QString message) {
 
 //---------------------------------------------------------------------
 //Based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
-void OpenGLWindow::compute() {
+void GLSurface::compute() {
     initialize_context();
 
     m_context->makeCurrent(this);
