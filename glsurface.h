@@ -1,3 +1,6 @@
+#ifndef GLSURFACE_H
+#define GLSURFACE_H
+
 //general
 #include <QtGui/QWindow>
 #include <QOffscreenSurface>
@@ -48,3 +51,4 @@ private:
     void xassert(bool condition, QString message);
 };
 
+#endif // GLSURFACE_H

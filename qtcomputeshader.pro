@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD
-SOURCES += $$PWD/openglwindow.cpp
-HEADERS += $$PWD/openglwindow.h
+SOURCES += $$PWD/glsurface.cpp
+HEADERS += $$PWD/glsurface.h
 
 SOURCES += \
     main.cpp

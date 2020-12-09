@@ -20,7 +20,7 @@ The code is made using ideas from the following codes:
 Denis Perevalov, github.com/perevalovds
  */
 
-#include "openglwindow.h"
+#include "glsurface.h"
 
 
 //---------------------------------------------------------------------
