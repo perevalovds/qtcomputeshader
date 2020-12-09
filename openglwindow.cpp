@@ -13,7 +13,6 @@
 //---------------------------------------------------------------------
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
-    , m_animating(false)
     , m_context(0)
     , m_device(0)
 {
@@ -92,7 +91,7 @@ void OpenGLWindow::renderLater()
 void OpenGLWindow::gl_assert(QString message) {
     GLenum error = GL_NO_ERROR;
     do {
-        error = extra->glGetError();
+        error = gl43->glGetError();
         if (error != GL_NO_ERROR) {
             qDebug() << message << ", OpenGL error code " << error;
         }

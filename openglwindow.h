@@ -38,8 +38,6 @@ protected:
     void exposeEvent(QExposeEvent *event) override;
 
 private:
-    bool m_animating;
-
     QOpenGLContext *m_context = nullptr;
     QOpenGLPaintDevice *m_device = nullptr;
 
