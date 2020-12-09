@@ -43,11 +43,6 @@ private:
 
     void initialize_context();
 
-
-
-
-    QOpenGLExtraFunctions *extra = nullptr;
-
     QOpenGLShaderProgram program;
     QOpenGLBuffer  SSBO;
 
