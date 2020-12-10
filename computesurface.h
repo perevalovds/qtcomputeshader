@@ -27,9 +27,11 @@ class ComputeSurface;
 
 //Class for warping buffer
 class ComputeBuffer {
-    void create(ComputeSurface *surface);
-    void allocate(void *data, int n);
-    void read_to_cpu(void *data, int n);
+public:
+    void setup(ComputeSurface *surface);
+    void allocate(void *data, int size_bytes);
+    void read_to_cpu(void *data, int size_bytes);
+    void clear();
 
     //Bind buffer to shader by specifying its binding index:
     //Shader:
@@ -38,6 +40,13 @@ class ComputeBuffer {
     void bind_for_shader(int binding_index);
 
 protected:
+    ComputeSurface *surface_ = nullptr;
+    QOpenGLBuffer shader_buffer_;
+
+    void gl_assert(QString message); //Check openGL error
+    void xassert(bool condition, QString message); //Check Qt wrapper error
+
+    void activate_context();
 
 };
 
@@ -56,11 +65,16 @@ public:
     //Initialize OpenGL context and load shader, must be called before computing
     void setup(QString shader_file);
 
-    //computing
-    void compute();
+    //Compute
+    void compute(int NX, int NY = 1, int NZ = 1);   //NX,NY,NZ - number of groups in X,Y,Z dimensions
 
-    void activate_context();    //switches to its OpenGL context - required for most operations
+    //Switch to OpenGL context - required before most operations
+    void activate_context();
 
+    void gl_assert(QString message); //Check openGL error
+    void xassert(bool condition, QString message); //Check Qt wrapper error
+
+    QOpenGLFunctions_4_3_Core *gl() { return gl43; }
 private:
     //OpenGL context
     QOpenGLContext *m_context = nullptr;        //will be deleted automatically
@@ -70,11 +84,9 @@ private:
     void initialize_context();
 
     QOpenGLShaderProgram program;
-    QOpenGLBuffer  SSBO;
 
 
-    void gl_assert(QString message); //Check openGL error
-    void xassert(bool condition, QString message); //Check Qt wrapper error
+
 };
 
 #endif // COMPUTESURFACE_H

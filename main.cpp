@@ -28,11 +28,39 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
+    //Shader
     QString shader_file = ":/shader/compute_shader.csh";
     ComputeSurface surface;
     surface.setup(shader_file);
 
-    surface.compute();
+    //Prepare input array
+    const int N = 23;
+    float buf[N];
+    for (int i=0; i<N; i++) {
+        buf[i] = i;
+    }
+
+    qDebug() << "Input buffer: ";
+    for (int i=0; i<N; i++) {
+        qDebug() << "  " << buf[i];
+    }
+
+    //Upload to GPU
+    ComputeBuffer buffer;
+    buffer.setup(&surface);
+    buffer.allocate(buf, sizeof(buf));
+
+    //Compute
+    buffer.bind_for_shader(0);
+    surface.compute(N);
+
+    //Download result to CPU
+    buffer.read_to_cpu(buf, sizeof(buf));
+
+    qDebug() << "Output buffer: ";
+    for (int i=0; i<N; i++) {
+        qDebug() << "  " << buf[i];
+    }
 
     return 0;
 }

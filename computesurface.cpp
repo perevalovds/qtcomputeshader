@@ -13,17 +13,46 @@
 //---------------------------------------------------------------------
 //ComputeBuffer
 //---------------------------------------------------------------------
-void ComputeBuffer::create(ComputeSurface *surface) {
-
+void ComputeBuffer::gl_assert(QString message) { //Check openGL error
+    if (surface_) surface_->gl_assert(message);
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::allocate(void *data, int n) {
-
+void ComputeBuffer::xassert(bool condition, QString message) { //Check Qt wrapper error
+    if (surface_) surface_->xassert(condition, message);
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::read_to_cpu(void *data, int n) {
+void ComputeBuffer::activate_context() {
+     if (surface_) surface_->activate_context();
+}
+
+//---------------------------------------------------------------------
+void ComputeBuffer::setup(ComputeSurface *surface) {
+    surface_ = surface;
+    activate_context();
+    xassert(shader_buffer_.create(), "Error at shader_buffer_.create()");
+    xassert(shader_buffer_.bind(), "Error at shader_buffer_.bind()");
+    shader_buffer_.setUsagePattern(QOpenGLBuffer::DynamicCopy);
+}
+
+//---------------------------------------------------------------------
+void ComputeBuffer::allocate(void *data, int size_bytes) {
+    activate_context();
+    shader_buffer_.allocate(data, size_bytes);
+}
+
+//---------------------------------------------------------------------
+void ComputeBuffer::clear() {
+    activate_context();
+    shader_buffer_.release();
+}
+
+//---------------------------------------------------------------------
+void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
+    activate_context();
+    //Read buffer
+    memcpy(data, shader_buffer_.map(QOpenGLBuffer::ReadWrite), size_bytes);
 
 }
 
@@ -33,6 +62,8 @@ void ComputeBuffer::read_to_cpu(void *data, int n) {
 //    layout(std430, binding = 0) buffer Buf
 //    { float buf[]; };
 void ComputeBuffer::bind_for_shader(int binding_index) {
+    surface_->gl()->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_index, shader_buffer_.bufferId());
+    gl_assert("Error at glBindBufferBase");
 
 }
 
@@ -106,7 +137,7 @@ void ComputeSurface::initialize_context() {
         //format.setOption(QSurfaceFormat::DebugContext);
         setFormat(format);
 
-        //Create surface
+        //Create Qt surface
         create();
 
         //Create OpenGL context
@@ -114,7 +145,7 @@ void ComputeSurface::initialize_context() {
         m_context->setFormat(requestedFormat());  //it's our "format"
         m_context->create();
 
-        //switch to using context, because initializeOpenGLFunctions requires it
+        //Switch to OpenGL context
         activate_context();
 
         //Initialize OpenGL functions
@@ -127,7 +158,8 @@ void ComputeSurface::initialize_context() {
 }
 
 //---------------------------------------------------------------------
-void ComputeSurface::activate_context() {    //switches to its OpenGL context - required for most operations
+//Switch to OpenGL context - required before most operations
+void ComputeSurface::activate_context() {
     xassert(m_context, "OpenGL context is not inited");
     if (!m_context) return;
     m_context->makeCurrent(this);
@@ -135,61 +167,24 @@ void ComputeSurface::activate_context() {    //switches to its OpenGL context - 
 
 //---------------------------------------------------------------------
 //Based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
-void ComputeSurface::compute() {
+void ComputeSurface::compute(int NX, int NY, int NZ) {
     xassert(m_context, "No initialization!");
     if (!m_context) return;
 
-
-    // Test buffers
-    const int N = 23;
-    float bbb[N];
-    for (int i=0; i<N; i++) {
-        bbb[i] = i;
-    }
-
-    qDebug() << "Input buffer: ";
-    for (int i=0; i<N; i++) {
-        qDebug() << "  " << bbb[i];
-    }
-
-    // SSBO init buffer
     activate_context();
-
-    xassert(SSBO.create(), "Error at SSBO.create()");
-    xassert(SSBO.bind(), "Error at SSBO.bind()");
-    SSBO.allocate(bbb, sizeof(bbb));
-    SSBO.setUsagePattern(QOpenGLBuffer::DynamicCopy);
-
-    //Gives error, but is required
-    gl43->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO.bufferId());
-    gl_assert("Error at glBindBufferBase");
-
-
-    // Multi use compute shader
-    //for (int i=1; i<10; i++){
-    // The data in the SSBO buffer should be placed strictly before the calculations
-    // and updated every time as the calculations are started.
-
     xassert(program.bind(), "Can't bind compute shader");
 
-    //SSBO.bind();
-
-    gl43->glDispatchCompute(N, 1, 1);		//Run computation
+    gl43->glDispatchCompute(NX, NY, NZ);		//Run computation
     gl_assert("glDispatchCompute error");
     gl43->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);	//Wait finish computation
     gl_assert("glMemoryBarrier error");
 
-    //SSBO.release();
+    //shader_buffer_.release();
 
     program.release();
     //}
 
-    //Read buffer
-    memcpy(bbb, SSBO.map(QOpenGLBuffer::ReadWrite), sizeof(bbb));
-    qDebug() << "Output buffer: ";
-    for (int i=0; i<N; i++) {
-        qDebug() << "  " << bbb[i];
-    }
+
 }
 
 
