@@ -25,7 +25,7 @@ QT_END_NAMESPACE
 
 class ComputeSurface;
 
-//Class for warping buffer
+//Class for warping GPU buffer, will it with values from CPU and load to CPU after computations
 class ComputeBuffer {
 public:
     void setup(ComputeSurface *surface);
@@ -51,7 +51,10 @@ protected:
 };
 
 
-//Subclass of QOffscreenSurface for holding compute shader - required by Qt
+//Surface for maintaining OpenGL context
+//Compute shaders and buffers will use it for enabling OpenGL context at operations
+//It's subclass of QOffscreenSurface, it's required to have such thing by Qt work with OpenGL
+//(Also can use QWindow, but in our case it's not needed, we want non-graphical computations)
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
