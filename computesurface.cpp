@@ -54,10 +54,10 @@ void ComputeSurface::setup(QString shader_file) {
     //Initialize OpenGL context
     initialize_context();
 
+    //Not sure if it's required for loading shader...
+    activate_context();
 
     //Load compute shader
-    m_context->makeCurrent(this);   //not sure if it's required
-
     xassert(program.addShaderFromSourceFile(QOpenGLShader::Compute, shader_file),
             "Can't load shader file " + shader_file);
 
@@ -78,21 +78,31 @@ void ComputeSurface::initialize_context() {
         //format.setOption(QSurfaceFormat::DebugContext);
         setFormat(format);
 
-        create();   //create surface
+        //Create surface
+        create();
 
-        //create context
+        //Create OpenGL context
         m_context = new QOpenGLContext(this);
         m_context->setFormat(requestedFormat());  //it's our "format"
         m_context->create();
 
         //switch to using context, because initializeOpenGLFunctions requires it
-        m_context->makeCurrent(this);
+        activate_context();
 
+        //Initialize OpenGL functions
         initializeOpenGLFunctions();
 
+        //Get pointer to extra functions of 4.3
         gl43 = m_context->versionFunctions<QOpenGLFunctions_4_3_Core>();
         gl_assert("Error creating gl43");
     }
+}
+
+//---------------------------------------------------------------------
+void ComputeSurface::activate_context() {    //switches to its OpenGL context - required for most operations
+    xassert(m_context, "OpenGL context is not inited");
+    if (!m_context) return;
+    m_context->makeCurrent(this);
 }
 
 //---------------------------------------------------------------------
@@ -115,7 +125,7 @@ void ComputeSurface::compute() {
     }
 
     // SSBO init buffer
-
+    activate_context();
 
     xassert(SSBO.create(), "Error at SSBO.create()");
     xassert(SSBO.bind(), "Error at SSBO.bind()");

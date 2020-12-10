@@ -23,6 +23,13 @@ class QOpenGLPaintDevice;
 QT_END_NAMESPACE
 
 
+class ComputeSurface;
+
+//Class for warping buffer
+class ComputeBuffer {
+
+};
+
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
@@ -39,6 +46,7 @@ public:
     //computing
     void compute();
 
+    void activate_context();    //switches to its OpenGL context - required for most operations
 
 private:
     //OpenGL context
