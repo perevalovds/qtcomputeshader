@@ -33,21 +33,27 @@ public:
     explicit ComputeSurface();
     ~ComputeSurface();
 
+    //Initialize OpenGL context and load shader, must be called before computing
+    void setup(QString shader_file);
+
+    //computing
     void compute();
 
+
 private:
-    QOpenGLContext *m_context = nullptr;
+    //OpenGL context
+    QOpenGLContext *m_context = nullptr;        //will be deleted automatically
+    //OpenGL extra functions
+    QOpenGLFunctions_4_3_Core *gl43 = nullptr;  //should't delete this!
 
     void initialize_context();
 
     QOpenGLShaderProgram program;
     QOpenGLBuffer  SSBO;
 
-    //QOpenGLExtraFunctions
-    QOpenGLFunctions_4_3_Core *gl43 = nullptr;
 
-    void gl_assert(QString message);
-    void xassert(bool condition, QString message);
+    void gl_assert(QString message); //Check openGL error
+    void xassert(bool condition, QString message); //Check Qt wrapper error
 };
 
 #endif // COMPUTESURFACE_H

@@ -28,7 +28,9 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
+    QString shader_file = ":/shader/compute_shader.csh";
     ComputeSurface surface;
+    surface.setup(shader_file);
 
     surface.compute();
 

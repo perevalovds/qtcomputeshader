@@ -24,6 +24,45 @@ ComputeSurface::ComputeSurface()
 //---------------------------------------------------------------------
 ComputeSurface::~ComputeSurface()
 {
+
+}
+
+//---------------------------------------------------------------------
+//Check openGL error
+void ComputeSurface::gl_assert(QString message) {
+    GLenum error = GL_NO_ERROR;
+    do {
+        error = gl43->glGetError();
+        if (error != GL_NO_ERROR) {
+            qDebug() << message << ", OpenGL error code " << error;
+        }
+    } while (error != GL_NO_ERROR);
+
+}
+
+//---------------------------------------------------------------------
+//Check Qt wrapper error
+void ComputeSurface::xassert(bool condition, QString message) {
+    if (!condition) {
+        qDebug() << message;
+    }
+}
+
+//---------------------------------------------------------------------
+//Initialize OpenGL context and load shader, must be called before computing
+void ComputeSurface::setup(QString shader_file) {
+    //Initialize OpenGL context
+    initialize_context();
+
+
+    //Load compute shader
+    m_context->makeCurrent(this);   //not sure if it's required
+
+    xassert(program.addShaderFromSourceFile(QOpenGLShader::Compute, shader_file),
+            "Can't load shader file " + shader_file);
+
+    //compute_shader->addShaderFromSourceCode(QOpenGLShader::Compute, text);
+    xassert(program.link(), "Can't link compute shader");
 }
 
 //---------------------------------------------------------------------
@@ -57,39 +96,11 @@ void ComputeSurface::initialize_context() {
 }
 
 //---------------------------------------------------------------------
-//check opengl errors
-void ComputeSurface::gl_assert(QString message) {
-    GLenum error = GL_NO_ERROR;
-    do {
-        error = gl43->glGetError();
-        if (error != GL_NO_ERROR) {
-            qDebug() << message << ", OpenGL error code " << error;
-        }
-    } while (error != GL_NO_ERROR);
-
-}
-
-//---------------------------------------------------------------------
-void ComputeSurface::xassert(bool condition, QString message) {
-    if (!condition) {
-        qDebug() << message;
-    }
-}
-
-//---------------------------------------------------------------------
 //Based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
 void ComputeSurface::compute() {
-    initialize_context();
+    xassert(m_context, "No initialization!");
+    if (!m_context) return;
 
-    m_context->makeCurrent(this);
-
-    // Compute shader init
-    QString shader_file = ":/shader/compute_shader.csh";
-    xassert(program.addShaderFromSourceFile(QOpenGLShader::Compute, shader_file),
-            "Can't load shader file " + shader_file);
-
-    //compute_shader->addShaderFromSourceCode(QOpenGLShader::Compute, text);
-    xassert(program.link(), "Can't link compute shader");
 
     // Test buffers
     const int N = 23;
