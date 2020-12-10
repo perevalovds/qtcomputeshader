@@ -1,32 +1,40 @@
 #ifndef COMPUTESURFACE_H
 #define COMPUTESURFACE_H
 
-//general
-#include <QtGui/QWindow>
 #include <QOffscreenSurface>
-#include <QtGui/QOpenGLFunctions>
-
-//specifics
-#include <QtGui/QGuiApplication>
-#include <QtGui/QMatrix4x4>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
-#include <QtGui/QScreen>
-
-#include <QtCore/qmath.h>
+#include <QOpenGLFunctions>
 #include <QOpenGLFunctions_4_3_Core>
 
 QT_BEGIN_NAMESPACE
-class QPainter;
 class QOpenGLContext;
-class QOpenGLPaintDevice;
 QT_END_NAMESPACE
 
 
 class ComputeSurface;
 
+//---------------------------------------------------------------------
+//ComputeCommon
+//Some common functions for support surface
+//Used in ComputeBuffer and ComputeShader
+//---------------------------------------------------------------------
+class ComputeCommon {
+public:
+
+protected:
+    void setup_surface(ComputeSurface *surface);
+    ComputeSurface *surface_ = nullptr;
+
+    void gl_assert(QString message); //Check openGL error
+    void xassert(bool condition, QString message); //Check Qt wrapper error
+    void activate_context();
+
+    QOpenGLFunctions_4_3_Core *gl();
+};
+
 //Class for warping GPU buffer, will it with values from CPU and load to CPU after computations
-class ComputeBuffer {
+class ComputeBuffer: public ComputeCommon {
 public:
     void setup(ComputeSurface *surface);
     void allocate(void *data, int size_bytes);
@@ -40,24 +48,42 @@ public:
     void bind_for_shader(int binding_index);
 
 protected:
-    ComputeSurface *surface_ = nullptr;
     QOpenGLBuffer shader_buffer_;
-
-    void gl_assert(QString message); //Check openGL error
-    void xassert(bool condition, QString message); //Check Qt wrapper error
-
-    void activate_context();
-
 };
 
+//---------------------------------------------------------------------
+//ComputeShader
+//Class for maintaining compute shaders
+//---------------------------------------------------------------------
+class ComputeShader: public ComputeCommon {
+public:
+    void setup(QString shader_file, ComputeSurface *surface);
 
+    //Call this to set up uniforms
+    void begin();
+
+    //Access this to set up uniforms
+    QOpenGLShaderProgram &program();
+
+    //Call this to perform computing
+    void compute(int NX, int NY = 1, int NZ = 1);   //NX,NY,NZ - number of groups in X,Y,Z dimensions
+
+    //Call after computing end
+    void end();
+
+protected:
+    QOpenGLShaderProgram program_;
+};
+
+//---------------------------------------------------------------------
+//ComputeSurface
 //Surface for maintaining OpenGL context
 //Compute shaders and buffers will use it for enabling OpenGL context at operations
 //It's subclass of QOffscreenSurface, it's required to have such thing by Qt work with OpenGL
 //(Also can use QWindow, but in our case it's not needed, we want non-graphical computations)
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
-
+//---------------------------------------------------------------------
 class ComputeSurface : public QOffscreenSurface, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -66,10 +92,7 @@ public:
     ~ComputeSurface();
 
     //Initialize OpenGL context and load shader, must be called before computing
-    void setup(QString shader_file);
-
-    //Compute
-    void compute(int NX, int NY = 1, int NZ = 1);   //NX,NY,NZ - number of groups in X,Y,Z dimensions
+    void setup();
 
     //Switch to OpenGL context - required before most operations
     void activate_context();
@@ -83,13 +106,6 @@ private:
     QOpenGLContext *m_context = nullptr;        //will be deleted automatically
     //OpenGL extra functions
     QOpenGLFunctions_4_3_Core *gl43 = nullptr;  //should't delete this!
-
-    void initialize_context();
-
-    QOpenGLShaderProgram program;
-
-
-
 };
 
 #endif // COMPUTESURFACE_H

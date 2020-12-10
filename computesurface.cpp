@@ -11,25 +11,39 @@
 
 
 //---------------------------------------------------------------------
-//ComputeBuffer
+//ComputeCommon
 //---------------------------------------------------------------------
-void ComputeBuffer::gl_assert(QString message) { //Check openGL error
+void ComputeCommon::setup_surface(ComputeSurface *surface) {
+    surface_ = surface;
+    activate_context();
+}
+
+//---------------------------------------------------------------------
+void ComputeCommon::gl_assert(QString message) { //Check openGL error
     if (surface_) surface_->gl_assert(message);
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::xassert(bool condition, QString message) { //Check Qt wrapper error
+void ComputeCommon::xassert(bool condition, QString message) { //Check Qt wrapper error
     if (surface_) surface_->xassert(condition, message);
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::activate_context() {
-     if (surface_) surface_->activate_context();
+void ComputeCommon::activate_context() {
+    if (surface_) surface_->activate_context();
 }
 
 //---------------------------------------------------------------------
+QOpenGLFunctions_4_3_Core *ComputeCommon::gl() {
+    return surface_->gl();
+}
+
+//---------------------------------------------------------------------
+//ComputeBuffer
+//---------------------------------------------------------------------
 void ComputeBuffer::setup(ComputeSurface *surface) {
-    surface_ = surface;
+    setup_surface(surface);
+
     activate_context();
     xassert(shader_buffer_.create(), "Error at shader_buffer_.create()");
     xassert(shader_buffer_.bind(), "Error at shader_buffer_.bind()");
@@ -64,7 +78,52 @@ void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
 void ComputeBuffer::bind_for_shader(int binding_index) {
     surface_->gl()->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_index, shader_buffer_.bufferId());
     gl_assert("Error at glBindBufferBase");
+}
 
+//---------------------------------------------------------------------
+//ComputeShader
+//---------------------------------------------------------------------
+//Initialize OpenGL context and load shader, must be called before computing
+void ComputeShader::setup(QString shader_file, ComputeSurface *surface) {
+    setup_surface(surface);
+
+    //Not sure if it's required for loading shader...
+    activate_context();
+    //Load compute shader
+    xassert(program_.addShaderFromSourceFile(QOpenGLShader::Compute, shader_file),
+            "Can't load shader file " + shader_file);
+
+    //compute_shader->addShaderFromSourceCode(QOpenGLShader::Compute, text);
+    xassert(program_.link(), "Can't link compute shader");
+}
+
+//---------------------------------------------------------------------
+//Call this to set up uniforms
+void ComputeShader::begin() {
+    activate_context();
+    xassert(program_.bind(), "Can't bind compute shader");
+}
+
+//---------------------------------------------------------------------
+//Access this to set up uniforms
+QOpenGLShaderProgram &ComputeShader::program() {
+    return program_;
+}
+
+//---------------------------------------------------------------------
+//Call this to perform computing
+//Based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
+void ComputeShader::compute(int NX, int NY, int NZ) {
+    gl()->glDispatchCompute(NX, NY, NZ);		//Run computation
+    gl_assert("glDispatchCompute error");
+    gl()->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);	//Wait finish computation
+    gl_assert("glMemoryBarrier error");
+}
+
+//---------------------------------------------------------------------
+//Call after computing end
+void ComputeShader::end() {
+    program_.release();
 }
 
 //---------------------------------------------------------------------
@@ -109,23 +168,8 @@ void ComputeSurface::xassert(bool condition, QString message) {
 
 //---------------------------------------------------------------------
 //Initialize OpenGL context and load shader, must be called before computing
-void ComputeSurface::setup(QString shader_file) {
+void ComputeSurface::setup() {
     //Initialize OpenGL context
-    initialize_context();
-
-    //Not sure if it's required for loading shader...
-    activate_context();
-
-    //Load compute shader
-    xassert(program.addShaderFromSourceFile(QOpenGLShader::Compute, shader_file),
-            "Can't load shader file " + shader_file);
-
-    //compute_shader->addShaderFromSourceCode(QOpenGLShader::Compute, text);
-    xassert(program.link(), "Can't link compute shader");
-}
-
-//---------------------------------------------------------------------
-void ComputeSurface::initialize_context() {
     if (!m_context) {
         QSurfaceFormat format;
         //Request OpenGL 4.3
@@ -164,29 +208,6 @@ void ComputeSurface::activate_context() {
     if (!m_context) return;
     m_context->makeCurrent(this);
 }
-
-//---------------------------------------------------------------------
-//Based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
-void ComputeSurface::compute(int NX, int NY, int NZ) {
-    xassert(m_context, "No initialization!");
-    if (!m_context) return;
-
-    activate_context();
-    xassert(program.bind(), "Can't bind compute shader");
-
-    gl43->glDispatchCompute(NX, NY, NZ);		//Run computation
-    gl_assert("glDispatchCompute error");
-    gl43->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);	//Wait finish computation
-    gl_assert("glMemoryBarrier error");
-
-    //shader_buffer_.release();
-
-    program.release();
-    //}
-
-
-}
-
 
 //---------------------------------------------------------------------
 
