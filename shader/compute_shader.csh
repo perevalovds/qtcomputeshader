@@ -30,7 +30,11 @@ void main(void)
 {
     uint id = gl_GlobalInvocationID.x;
     
-    buf[id] = id*2;
+    float value = buf[id];  //read
+    
+    value += id*0.5f;            //change
+    
+    buf[id] = value;        //write    
 
     /*vec3 p = pos[id].xyz;
  

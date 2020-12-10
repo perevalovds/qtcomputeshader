@@ -1,4 +1,4 @@
-#include "glsurface.h"
+#include "computesurface.h"
 
 #include <QtCore/QCoreApplication>
 
@@ -14,39 +14,39 @@
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
-GLSurface::GLSurface()
+ComputeSurface::ComputeSurface()
     : QOffscreenSurface()
     , m_context(0)
-    , m_device(0)
 {
 
 }
 
 //---------------------------------------------------------------------
-GLSurface::~GLSurface()
+ComputeSurface::~ComputeSurface()
 {
-    delete m_device;
 }
 
 //---------------------------------------------------------------------
-void GLSurface::initialize_context() {
+void ComputeSurface::initialize_context() {
     if (!m_context) {
         QSurfaceFormat format;
-        format.setSamples(16);
-
+        //Request OpenGL 4.3
         format.setMajorVersion(4);
         format.setMinorVersion(3);
+
+        //format.setSamples(16); //antialiasing samples
         //format.setProfile(QSurfaceFormat::CoreProfile);
         //format.setOption(QSurfaceFormat::DebugContext);
         setFormat(format);
 
         create();   //create surface
 
+        //create context
         m_context = new QOpenGLContext(this);
         m_context->setFormat(requestedFormat());  //it's our "format"
         m_context->create();
 
-        //switch to using context
+        //switch to using context, because initializeOpenGLFunctions requires it
         m_context->makeCurrent(this);
 
         initializeOpenGLFunctions();
@@ -58,7 +58,7 @@ void GLSurface::initialize_context() {
 
 //---------------------------------------------------------------------
 //check opengl errors
-void GLSurface::gl_assert(QString message) {
+void ComputeSurface::gl_assert(QString message) {
     GLenum error = GL_NO_ERROR;
     do {
         error = gl43->glGetError();
@@ -70,7 +70,7 @@ void GLSurface::gl_assert(QString message) {
 }
 
 //---------------------------------------------------------------------
-void GLSurface::xassert(bool condition, QString message) {
+void ComputeSurface::xassert(bool condition, QString message) {
     if (!condition) {
         qDebug() << message;
     }
@@ -78,7 +78,7 @@ void GLSurface::xassert(bool condition, QString message) {
 
 //---------------------------------------------------------------------
 //Based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
-void GLSurface::compute() {
+void ComputeSurface::compute() {
     initialize_context();
 
     m_context->makeCurrent(this);
@@ -94,6 +94,14 @@ void GLSurface::compute() {
     // Test buffers
     const int N = 23;
     float bbb[N];
+    for (int i=0; i<N; i++) {
+        bbb[i] = i;
+    }
+
+    qDebug() << "Input buffer: ";
+    for (int i=0; i<N; i++) {
+        qDebug() << "  " << bbb[i];
+    }
 
     // SSBO init buffer
 

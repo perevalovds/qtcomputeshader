@@ -20,7 +20,7 @@ The code is made using ideas from the following codes:
 Denis Perevalov, github.com/perevalovds
  */
 
-#include "glsurface.h"
+#include "computesurface.h"
 
 
 //---------------------------------------------------------------------
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    GLSurface surface;
+    ComputeSurface surface;
 
     surface.compute();
 

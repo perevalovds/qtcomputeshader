@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD
-SOURCES += $$PWD/glsurface.cpp
-HEADERS += $$PWD/glsurface.h
+SOURCES += $$PWD/computesurface.cpp
+HEADERS += $$PWD/computesurface.h
 
 SOURCES += \
     main.cpp

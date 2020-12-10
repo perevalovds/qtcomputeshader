@@ -1,5 +1,5 @@
-#ifndef GLSURFACE_H
-#define GLSURFACE_H
+#ifndef COMPUTESURFACE_H
+#define COMPUTESURFACE_H
 
 //general
 #include <QtGui/QWindow>
@@ -26,18 +26,17 @@ QT_END_NAMESPACE
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
-class GLSurface : public QOffscreenSurface, protected QOpenGLFunctions
+class ComputeSurface : public QOffscreenSurface, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    explicit GLSurface();
-    ~GLSurface();
+    explicit ComputeSurface();
+    ~ComputeSurface();
 
     void compute();
 
 private:
     QOpenGLContext *m_context = nullptr;
-    QOpenGLPaintDevice *m_device = nullptr;
 
     void initialize_context();
 
@@ -51,4 +50,4 @@ private:
     void xassert(bool condition, QString message);
 };
 
-#endif // GLSURFACE_H
+#endif // COMPUTESURFACE_H
