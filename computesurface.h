@@ -47,6 +47,9 @@ public:
     //    { float buf[]; };
     void bind_for_shader(int binding_index);
 
+    //Unbind - not tested
+    void unbind();
+
 protected:
     QOpenGLBuffer shader_buffer_;
 };
@@ -84,7 +87,7 @@ protected:
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 //---------------------------------------------------------------------
-class ComputeSurface : public QOffscreenSurface, protected QOpenGLFunctions
+class ComputeSurface: public QOffscreenSurface, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:

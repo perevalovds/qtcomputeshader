@@ -1,7 +1,10 @@
 # qtcomputeshader
-Minimalistic example of using compute shader in Qt without graphical rendering.
+Example of using compute shader in Qt without graphical rendering.
 
-The compute shader processes array of 23 floats and Qt reads it back and print to console. :)
+The compute shader processes array of 23 floats and Qt reads it back and print to console.
+
+Example contains ComputeBuffer, ComputeShader and ComputeSurface helper classes 
+to simplify working with compute shaders.
 
 ### Requirements
 

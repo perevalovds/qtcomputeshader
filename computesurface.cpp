@@ -59,7 +59,7 @@ void ComputeBuffer::allocate(void *data, int size_bytes) {
 //---------------------------------------------------------------------
 void ComputeBuffer::clear() {
     activate_context();
-    shader_buffer_.release();
+    shader_buffer_.destroy();
 }
 
 //---------------------------------------------------------------------
@@ -78,6 +78,12 @@ void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
 void ComputeBuffer::bind_for_shader(int binding_index) {
     surface_->gl()->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_index, shader_buffer_.bufferId());
     gl_assert("Error at glBindBufferBase");
+}
+
+//---------------------------------------------------------------------
+//Unbind - not tested
+void ComputeBuffer::unbind() {
+    shader_buffer_.release();
 }
 
 //---------------------------------------------------------------------
