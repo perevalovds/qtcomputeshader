@@ -27,9 +27,22 @@ class ComputeSurface;
 
 //Class for warping buffer
 class ComputeBuffer {
+    void create(ComputeSurface *surface);
+    void allocate(void *data, int n);
+    void read_to_cpu(void *data, int n);
+
+    //Bind buffer to shader by specifying its binding index:
+    //Shader:
+    //    layout(std430, binding = 0) buffer Buf
+    //    { float buf[]; };
+    void bind_for_shader(int binding_index);
+
+protected:
 
 };
 
+
+//Subclass of QOffscreenSurface for holding compute shader - required by Qt
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 

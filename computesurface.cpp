@@ -11,6 +11,34 @@
 
 
 //---------------------------------------------------------------------
+//ComputeBuffer
+//---------------------------------------------------------------------
+void ComputeBuffer::create(ComputeSurface *surface) {
+
+}
+
+//---------------------------------------------------------------------
+void ComputeBuffer::allocate(void *data, int n) {
+
+}
+
+//---------------------------------------------------------------------
+void ComputeBuffer::read_to_cpu(void *data, int n) {
+
+}
+
+//---------------------------------------------------------------------
+//Bind buffer to shader by specifying its binding index:
+//Shader:
+//    layout(std430, binding = 0) buffer Buf
+//    { float buf[]; };
+void ComputeBuffer::bind_for_shader(int binding_index) {
+
+}
+
+//---------------------------------------------------------------------
+//ComputeSurface
+//---------------------------------------------------------------------
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
@@ -135,6 +163,7 @@ void ComputeSurface::compute() {
     //Gives error, but is required
     gl43->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO.bufferId());
     gl_assert("Error at glBindBufferBase");
+
 
     // Multi use compute shader
     //for (int i=1; i<10; i++){
