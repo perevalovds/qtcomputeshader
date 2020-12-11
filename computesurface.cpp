@@ -9,7 +9,6 @@
 #include <QDebug>
 #include <QFile>
 
-
 //---------------------------------------------------------------------
 //ComputeCommon
 //---------------------------------------------------------------------
@@ -44,16 +43,31 @@ QOpenGLFunctions_4_3_Core *ComputeCommon::gl() {
 void ComputeBuffer::setup(ComputeSurface *surface) {
     setup_surface(surface);
 
+
     activate_context();
     xassert(shader_buffer_.create(), "Error at shader_buffer_.create()");
-    xassert(shader_buffer_.bind(), "Error at shader_buffer_.bind()");
+
     shader_buffer_.setUsagePattern(QOpenGLBuffer::DynamicCopy);
+}
+
+//---------------------------------------------------------------------
+void ComputeBuffer::bind() {
+    xassert(shader_buffer_.bind(), "Error at shader_buffer_.bind()");
+}
+
+//---------------------------------------------------------------------
+void ComputeBuffer::unbind() {
+    shader_buffer_.release();
 }
 
 //---------------------------------------------------------------------
 void ComputeBuffer::allocate(void *data, int size_bytes) {
     activate_context();
+    //we must always bind/unbind buffer for the most operations - it's not made by Qt!
+    bind();
     shader_buffer_.allocate(data, size_bytes);
+    unbind();
+
 }
 
 //---------------------------------------------------------------------
@@ -65,14 +79,10 @@ void ComputeBuffer::clear() {
 //---------------------------------------------------------------------
 void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
     activate_context();
-    
-    //Read buffer
-    //map and unmap
-    //memcpy(data, shader_buffer_.map(QOpenGLBuffer::ReadWrite), size_bytes);
-    //shader_buffer_.unmap();
-    
-    shader_buffer_.read(0, data, size_bytes);
-
+        
+    bind();
+    xassert(shader_buffer_.read(0, data, size_bytes), "ComputeBuffer::read_to_cpu error");
+    unbind();
 }
 
 //---------------------------------------------------------------------
@@ -81,14 +91,10 @@ void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
 //    layout(std430, binding = 0) buffer Buf
 //    { float buf[]; };
 void ComputeBuffer::bind_for_shader(int binding_index) {
+    //bind();
     surface_->gl()->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_index, shader_buffer_.bufferId());
     gl_assert("Error at glBindBufferBase");
-}
-
-//---------------------------------------------------------------------
-//Unbind - not tested
-void ComputeBuffer::unbind() {
-    shader_buffer_.release();
+    //unbind();
 }
 
 //---------------------------------------------------------------------
@@ -197,7 +203,7 @@ void ComputeSurface::setup() {
 
         //Create OpenGL context
         m_context = new QOpenGLContext(this);
-        m_context->setFormat(requestedFormat());  //it's our "format"
+        m_context->setFormat(format); //requestedFormat());  //it's our "format"
         m_context->create();
 
         //Switch to OpenGL context
