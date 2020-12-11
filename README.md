@@ -6,6 +6,10 @@ The compute shader processes array of 23 floats and Qt reads it back and print t
 Example contains ComputeBuffer, ComputeShader and ComputeSurface helper classes 
 to simplify working with compute shaders.
 
+## Note
+
+Current example works, but in real application I can't read several different buffers...
+
 ### Requirements
 
 * OpenGL >= 4.3.

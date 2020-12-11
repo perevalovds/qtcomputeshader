@@ -65,8 +65,13 @@ void ComputeBuffer::clear() {
 //---------------------------------------------------------------------
 void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
     activate_context();
+    
     //Read buffer
-    memcpy(data, shader_buffer_.map(QOpenGLBuffer::ReadWrite), size_bytes);
+    //map and unmap
+    //memcpy(data, shader_buffer_.map(QOpenGLBuffer::ReadWrite), size_bytes);
+    //shader_buffer_.unmap();
+    
+    shader_buffer_.read(0, data, size_bytes);
 
 }
 
