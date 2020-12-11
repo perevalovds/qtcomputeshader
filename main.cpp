@@ -39,6 +39,10 @@ int main(int argc, char **argv)
     shader.setup(shader_file, &surface);
 
     //Buffer for computations
+    //We use std430 in shader's code, so it looks like no need to align to float*4
+    //BUT: later I got in troubles with "vec3" arrays aligning, 
+    //so I think it's better nevertheless to std430 use vec4 and aligning to float*4 ....
+    //at least until I will clearly keep in mind std430 details :)
     const int N = 23;
     float buf[N];
     for (int i=0; i<N; i++) {
