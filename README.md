@@ -1,14 +1,11 @@
 # qtcomputeshader
 Example of using compute shader in Qt without graphical rendering.
 
-The compute shader processes array of 23 floats and Qt reads it back and print to console.
+The compute shader processes array of 23 floats and writes it to another array. 
+Qt reads both input and output arrays back to CPU and prints to console.
 
 Example contains ComputeBuffer, ComputeShader and ComputeSurface helper classes 
 to simplify working with compute shaders.
-
-## Note
-
-Current example works, but in real application I can't read several different buffers...
 
 ### Requirements
 
@@ -23,3 +20,7 @@ The code is made using ideas from the following codes:
 * Qt and shader connection is based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
 * Compute shader text contains fragments from https://github.com/1DIce/Qt3D_compute_particles_cpp
 
+Useful links:
+* Khronos docs about shader buffers: https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object
+* Qt QOpenGLBuffer sources which show me that I must use bind/unbind often, because this buffer really doesn't do it (but should...):
+https://code.woboq.org/qt5/qtbase/src/gui/opengl/qopenglbuffer.cpp.html
