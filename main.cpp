@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    //context - for create and maintaing OpenGL context
+    //Context - for create and maintaing OpenGL context
     GlContext context;
     context.setup();
 

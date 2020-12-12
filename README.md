@@ -37,6 +37,13 @@ https://stackoverflow.com/questions/38172696/should-i-ever-use-a-vec3-inside-of-
 * OpenGL >= 4.3.
 * Tested on Qt = 5.15, Windows, but contains no platform-specific code.
 
+### Further development
+
+I created this example to test working compute shaders in Qt.
+Then I use it in compute shaders support for Xclu project,
+https://github.com/XcluDev/Xclu
+- See sdk/compshaders/xcomputeshader.h,.cpp (may be renamed in future).
+
 ### Credits
 The code is made using ideas from the following codes:
 * The basis is "openglwindow" Qt example
