@@ -38,7 +38,6 @@ QOpenGLFunctions_4_3_Core *ComputeCommon::gl() {
 void ComputeBuffer::setup(ComputeSurface *surface) {
     setup_surface(surface);
 
-
     activate_context();
     xassert(shader_buffer_.create(), "Error at shader_buffer_.create()");
 
@@ -62,7 +61,6 @@ void ComputeBuffer::allocate(void *data, int size_bytes) {
     bind();
     shader_buffer_.allocate(data, size_bytes);
     unbind();
-
 }
 
 //---------------------------------------------------------------------
@@ -86,10 +84,8 @@ void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
 //    layout(std430, binding = 0) buffer Buf
 //    { float buf[]; };
 void ComputeBuffer::bind_for_shader(int binding_index) {
-    //bind();
     surface_->gl()->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_index, shader_buffer_.bufferId());
     gl_assert("Error at glBindBufferBase");
-    //unbind();
 }
 
 //---------------------------------------------------------------------
@@ -99,7 +95,6 @@ void ComputeBuffer::bind_for_shader(int binding_index) {
 void ComputeShader::setup(QString shader_file, ComputeSurface *surface) {
     setup_surface(surface);
 
-    //Not sure if it's required for loading shader...
     activate_context();
     //Load compute shader
     xassert(program_.addShaderFromSourceFile(QOpenGLShader::Compute, shader_file),
