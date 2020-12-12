@@ -12,14 +12,14 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    //Surface - for create and maintaing OpenGL context
-    GlContext surface;
-    surface.setup();
+    //context - for create and maintaing OpenGL context
+    GlContext context;
+    context.setup();
 
     //Compute shader
     QString shader_file = ":/shader/compute_shader.csh";
     ComputeShader shader;
-    shader.setup(shader_file, &surface);
+    shader.setup(shader_file, &context);
 
     //Set buffers for computation
     //As you see, we use array of 23 floats, together with std430 layout specifier 
@@ -40,8 +40,8 @@ int main(int argc, char **argv)
 
     ShaderBuffer input_buffer, output_buffer;
 
-    input_buffer.setup(&surface);
-    output_buffer.setup(&surface);
+    input_buffer.setup(&context);
+    output_buffer.setup(&context);
 
     input_buffer.allocate(input, sizeof(input));
     output_buffer.allocate(output, sizeof(output));
