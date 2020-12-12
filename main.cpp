@@ -7,7 +7,6 @@ See readme.
 #include "computesurface.h"
 #include <QtGui/QGuiApplication>
 
-
 //---------------------------------------------------------------------
 int main(int argc, char **argv)
 {

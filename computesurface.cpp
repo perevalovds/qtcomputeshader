@@ -1,13 +1,8 @@
 #include "computesurface.h"
 
-#include <QtCore/QCoreApplication>
-
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLPaintDevice>
-#include <QtGui/QPainter>
 #include <QOpenGLExtraFunctions>
 #include <QDebug>
-#include <QFile>
 
 //---------------------------------------------------------------------
 //ComputeCommon
