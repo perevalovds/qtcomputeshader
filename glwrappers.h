@@ -12,19 +12,19 @@ class QOpenGLContext;
 QT_END_NAMESPACE
 
 
-class ComputeSurface;
+class GlSurface;
 
 //---------------------------------------------------------------------
-//ComputeCommon
+//GlCommon
 //Some common functions for support surface
-//Used in ComputeBuffer and ComputeShader
+//Used in ShaderBuffer and ComputeShader
 //---------------------------------------------------------------------
-class ComputeCommon {
+class GlCommon {
 public:
 
 protected:
-    void setup_surface(ComputeSurface *surface);
-    ComputeSurface *surface_ = nullptr;
+    void setup_surface(GlSurface *surface);
+    GlSurface *surface_ = nullptr;
 
     void gl_assert(QString message); //Check openGL error
     void xassert(bool condition, QString message); //Check Qt wrapper error
@@ -34,9 +34,9 @@ protected:
 };
 
 //Class for warping GPU buffer, will it with values from CPU and load to CPU after computations
-class ComputeBuffer: public ComputeCommon {
+class ShaderBuffer: public GlCommon {
 public:
-    void setup(ComputeSurface *surface);
+    void setup(GlSurface *surface);
     void allocate(void *data, int size_bytes);
     void read_to_cpu(void *data, int size_bytes);
     void clear();
@@ -64,9 +64,9 @@ protected:
 //ComputeShader
 //Class for maintaining compute shaders
 //---------------------------------------------------------------------
-class ComputeShader: public ComputeCommon {
+class ComputeShader: public GlCommon {
 public:
-    void setup(QString shader_file, ComputeSurface *surface);
+    void setup(QString shader_file, GlSurface *surface);
 
     //Call this to set up uniforms
     void begin();
@@ -85,7 +85,7 @@ protected:
 };
 
 //---------------------------------------------------------------------
-//ComputeSurface
+//GlSurface
 //Surface for maintaining OpenGL context
 //Compute shaders and buffers will use it for enabling OpenGL context at operations
 //It's subclass of QOffscreenSurface, it's required to have such thing by Qt work with OpenGL
@@ -93,12 +93,12 @@ protected:
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 //---------------------------------------------------------------------
-class ComputeSurface: public QOffscreenSurface, protected QOpenGLFunctions
+class GlSurface: public QOffscreenSurface, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    explicit ComputeSurface();
-    ~ComputeSurface();
+    explicit GlSurface();
+    ~GlSurface();
 
     //Initialize OpenGL context and load shader, must be called before computing
     void setup();

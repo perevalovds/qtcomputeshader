@@ -1,8 +1,23 @@
 # qtcomputeshader
-Example of using compute shader in Qt without graphical rendering.
+It's example of using compute shader in Qt without graphical rendering.
 
 The compute shader processes array of 23 floats and writes it to another array. 
 Qt reads both input and output arrays back to CPU and prints to console.
+
+When running, the example should print the 23 input and output elements to console:
+
+```console
+Buffers: 
+   0   0
+   1   1.5
+   2   3
+   3   4.5
+   4   6
+   5   7.5
+   6   9
+   7   10.5
+...
+```
 
 Example contains ComputeBuffer, ComputeShader and ComputeSurface helper classes 
 to simplify working with compute shaders.
@@ -20,9 +35,7 @@ https://stackoverflow.com/questions/38172696/should-i-ever-use-a-vec3-inside-of-
 ### Requirements
 
 * OpenGL >= 4.3.
-* Qt >= 5.14.
-
-Code was tested on Windows, but contains no platform-specific code.
+* Tested on Qt = 5.15, Windows, but contains no platform-specific code.
 
 ### Credits
 The code is made using ideas from the following codes:

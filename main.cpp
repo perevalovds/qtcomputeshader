@@ -4,7 +4,7 @@ Denis Perevalov, github.com/perevalovds
 See readme.
  */
 
-#include "computesurface.h"
+#include "glwrappers.h"
 #include <QtGui/QGuiApplication>
 
 //---------------------------------------------------------------------
@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     QGuiApplication app(argc, argv);
 
     //Surface - for create and maintaing OpenGL context
-    ComputeSurface surface;
+    GlSurface surface;
     surface.setup();
 
     //Compute shader
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
         output[i] = -i;
     }
 
-    ComputeBuffer input_buffer, output_buffer;
+    ShaderBuffer input_buffer, output_buffer;
 
     input_buffer.setup(&surface);
     output_buffer.setup(&surface);

@@ -1,41 +1,41 @@
-#include "computesurface.h"
+#include "glwrappers.h"
 
 #include <QtGui/QOpenGLContext>
 #include <QOpenGLExtraFunctions>
 #include <QDebug>
 
 //---------------------------------------------------------------------
-//ComputeCommon
+//GlCommon
 //---------------------------------------------------------------------
-void ComputeCommon::setup_surface(ComputeSurface *surface) {
+void GlCommon::setup_surface(GlSurface *surface) {
     surface_ = surface;
     activate_context();
 }
 
 //---------------------------------------------------------------------
-void ComputeCommon::gl_assert(QString message) { //Check openGL error
+void GlCommon::gl_assert(QString message) { //Check openGL error
     if (surface_) surface_->gl_assert(message);
 }
 
 //---------------------------------------------------------------------
-void ComputeCommon::xassert(bool condition, QString message) { //Check Qt wrapper error
+void GlCommon::xassert(bool condition, QString message) { //Check Qt wrapper error
     if (surface_) surface_->xassert(condition, message);
 }
 
 //---------------------------------------------------------------------
-void ComputeCommon::activate_context() {
+void GlCommon::activate_context() {
     if (surface_) surface_->activate_context();
 }
 
 //---------------------------------------------------------------------
-QOpenGLFunctions_4_3_Core *ComputeCommon::gl() {
+QOpenGLFunctions_4_3_Core *GlCommon::gl() {
     return surface_->gl();
 }
 
 //---------------------------------------------------------------------
-//ComputeBuffer
+//ShaderBuffer
 //---------------------------------------------------------------------
-void ComputeBuffer::setup(ComputeSurface *surface) {
+void ShaderBuffer::setup(GlSurface *surface) {
     setup_surface(surface);
 
     activate_context();
@@ -45,17 +45,17 @@ void ComputeBuffer::setup(ComputeSurface *surface) {
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::bind() {
+void ShaderBuffer::bind() {
     xassert(shader_buffer_.bind(), "Error at shader_buffer_.bind()");
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::unbind() {
+void ShaderBuffer::unbind() {
     shader_buffer_.release();
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::allocate(void *data, int size_bytes) {
+void ShaderBuffer::allocate(void *data, int size_bytes) {
     activate_context();
     //we must always bind/unbind buffer for the most operations - it's not made by Qt!
     bind();
@@ -64,17 +64,17 @@ void ComputeBuffer::allocate(void *data, int size_bytes) {
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::clear() {
+void ShaderBuffer::clear() {
     activate_context();
     shader_buffer_.destroy();
 }
 
 //---------------------------------------------------------------------
-void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
+void ShaderBuffer::read_to_cpu(void *data, int size_bytes) {
     activate_context();
         
     bind();
-    xassert(shader_buffer_.read(0, data, size_bytes), "ComputeBuffer::read_to_cpu error");
+    xassert(shader_buffer_.read(0, data, size_bytes), "ShaderBuffer::read_to_cpu error");
     unbind();
 }
 
@@ -83,7 +83,7 @@ void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
 //Shader:
 //    layout(std430, binding = 0) buffer Buf
 //    { float buf[]; };
-void ComputeBuffer::bind_for_shader(int binding_index) {
+void ShaderBuffer::bind_for_shader(int binding_index) {
     activate_context();
     surface_->gl()->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_index, shader_buffer_.bufferId());
     gl_assert("Error at glBindBufferBase");
@@ -93,7 +93,7 @@ void ComputeBuffer::bind_for_shader(int binding_index) {
 //ComputeShader
 //---------------------------------------------------------------------
 //Initialize OpenGL context and load shader, must be called before computing
-void ComputeShader::setup(QString shader_file, ComputeSurface *surface) {
+void ComputeShader::setup(QString shader_file, GlSurface *surface) {
     setup_surface(surface);
 
     activate_context();
@@ -135,12 +135,12 @@ void ComputeShader::end() {
 }
 
 //---------------------------------------------------------------------
-//ComputeSurface
+//GlSurface
 //---------------------------------------------------------------------
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
-ComputeSurface::ComputeSurface()
+GlSurface::GlSurface()
     : QOffscreenSurface()
     , m_context(0)
 {
@@ -148,14 +148,14 @@ ComputeSurface::ComputeSurface()
 }
 
 //---------------------------------------------------------------------
-ComputeSurface::~ComputeSurface()
+GlSurface::~GlSurface()
 {
 
 }
 
 //---------------------------------------------------------------------
 //Check openGL error
-void ComputeSurface::gl_assert(QString message) {
+void GlSurface::gl_assert(QString message) {
     GLenum error = GL_NO_ERROR;
     do {
         error = gl43->glGetError();
@@ -168,7 +168,7 @@ void ComputeSurface::gl_assert(QString message) {
 
 //---------------------------------------------------------------------
 //Check Qt wrapper error
-void ComputeSurface::xassert(bool condition, QString message) {
+void GlSurface::xassert(bool condition, QString message) {
     if (!condition) {
         qDebug() << message;
     }
@@ -176,7 +176,7 @@ void ComputeSurface::xassert(bool condition, QString message) {
 
 //---------------------------------------------------------------------
 //Initialize OpenGL context and load shader, must be called before computing
-void ComputeSurface::setup() {
+void GlSurface::setup() {
     //Initialize OpenGL context
     if (!m_context) {
         QSurfaceFormat format;
@@ -211,7 +211,7 @@ void ComputeSurface::setup() {
 
 //---------------------------------------------------------------------
 //Switch to OpenGL context - required before most operations
-void ComputeSurface::activate_context() {
+void GlSurface::activate_context() {
     xassert(m_context, "OpenGL context is not inited");
     if (!m_context) return;
     m_context->makeCurrent(this);
