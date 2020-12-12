@@ -84,6 +84,7 @@ void ComputeBuffer::read_to_cpu(void *data, int size_bytes) {
 //    layout(std430, binding = 0) buffer Buf
 //    { float buf[]; };
 void ComputeBuffer::bind_for_shader(int binding_index) {
+    activate_context();
     surface_->gl()->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_index, shader_buffer_.bufferId());
     gl_assert("Error at glBindBufferBase");
 }
