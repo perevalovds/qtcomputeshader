@@ -23,7 +23,14 @@ int main(int argc, char **argv)
     shader.setup(shader_file, &surface);
 
     //Set buffers for computation
-    //We use std430 in shader's code, so it looks like no need to align to float*4
+    //As you see, we use array of 23 floats, together with std430 layout specifier 
+    //in shader's buffer declaration.
+    //Such array works and we are not required to align data to 4*float.
+    //But nevertheless you should't use vec3 anyway in shader buffer, 
+    //because it's aligned itself to 16 floats anyway!
+    //See details here:
+    //https://stackoverflow.com/questions/38172696/should-i-ever-use-a-vec3-inside-of-a-uniform-buffer-or-shader-storage-buffer-o
+
     const int N = 23;
     float input[N];
     float output[N];

@@ -7,6 +7,16 @@ Qt reads both input and output arrays back to CPU and prints to console.
 Example contains ComputeBuffer, ComputeShader and ComputeSurface helper classes 
 to simplify working with compute shaders.
 
+### Note on data aligning
+As you see in the example, we use array of 23 floats, together with std430 layout specifier 
+in shader's buffer declaration.
+Such array works and we are not required to align data to 4*float.
+But nevertheless you shouldn't use vec3 anyway in shader buffer, 
+because it's aligned itself to 16 floats anyway!
+See details here:
+https://stackoverflow.com/questions/38172696/should-i-ever-use-a-vec3-inside-of-a-uniform-buffer-or-shader-storage-buffer-o
+
+
 ### Requirements
 
 * OpenGL >= 4.3.
