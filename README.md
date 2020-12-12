@@ -19,7 +19,7 @@ Buffers:
 ...
 ```
 
-Example contains ComputeBuffer, ComputeShader and ComputeSurface helper classes 
+Example contains ShaderBuffer, ComputeShader and GlSurface helper classes 
 to simplify working with compute shaders.
 
 ### Note on data aligning
