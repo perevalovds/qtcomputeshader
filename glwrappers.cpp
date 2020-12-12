@@ -119,13 +119,16 @@ QOpenGLShaderProgram &ComputeShader::program() {
 }
 
 //---------------------------------------------------------------------
-//Call this to perform computing
-//Based on https://forum.qt.io/topic/104448/about-buffer-for-compute-shader/6
+//Perform computing with compute shader.
+//Note: it calls glFinish(), so waits until computing will be finished
 void ComputeShader::compute(int NX, int NY, int NZ) {
     gl()->glDispatchCompute(NX, NY, NZ);		//Run computation
     gl_assert("glDispatchCompute error");
-    gl()->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);	//Wait finish computation
-    gl_assert("glMemoryBarrier error");
+    //gl()->glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    //gl_assert("glMemoryBarrier error");
+
+    //Wait to complete the computing
+    gl()->glFinish();
 }
 
 //---------------------------------------------------------------------

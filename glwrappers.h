@@ -74,7 +74,8 @@ public:
     //Access this to set up uniforms
     QOpenGLShaderProgram &program();
 
-    //Call this to perform computing
+    //Perform computing with compute shader.
+    //Note: it calls glFinish(), so waits until computing will be finished
     void compute(int NX, int NY = 1, int NZ = 1);   //NX,NY,NZ - number of groups in X,Y,Z dimensions
 
     //Call after computing end
