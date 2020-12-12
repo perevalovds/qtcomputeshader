@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     QGuiApplication app(argc, argv);
 
     //Surface - for create and maintaing OpenGL context
-    GlSurface surface;
+    GlContext surface;
     surface.setup();
 
     //Compute shader

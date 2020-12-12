@@ -7,7 +7,7 @@
 //---------------------------------------------------------------------
 //GlCommon
 //---------------------------------------------------------------------
-void GlCommon::setup_surface(GlSurface *surface) {
+void GlCommon::setup_surface(GlContext *surface) {
     surface_ = surface;
     activate_context();
 }
@@ -35,7 +35,7 @@ QOpenGLFunctions_4_3_Core *GlCommon::gl() {
 //---------------------------------------------------------------------
 //ShaderBuffer
 //---------------------------------------------------------------------
-void ShaderBuffer::setup(GlSurface *surface) {
+void ShaderBuffer::setup(GlContext *surface) {
     setup_surface(surface);
 
     activate_context();
@@ -93,7 +93,7 @@ void ShaderBuffer::bind_for_shader(int binding_index) {
 //ComputeShader
 //---------------------------------------------------------------------
 //Initialize OpenGL context and load shader, must be called before computing
-void ComputeShader::setup(QString shader_file, GlSurface *surface) {
+void ComputeShader::setup(QString shader_file, GlContext *surface) {
     setup_surface(surface);
 
     activate_context();
@@ -135,12 +135,12 @@ void ComputeShader::end() {
 }
 
 //---------------------------------------------------------------------
-//GlSurface
+//GlContext
 //---------------------------------------------------------------------
 //Note: QOffscreenSurface can work in non-main thread,
 //but its "create" must be called from main thread
 
-GlSurface::GlSurface()
+GlContext::GlContext()
     : QOffscreenSurface()
     , m_context(0)
 {
@@ -148,14 +148,14 @@ GlSurface::GlSurface()
 }
 
 //---------------------------------------------------------------------
-GlSurface::~GlSurface()
+GlContext::~GlContext()
 {
 
 }
 
 //---------------------------------------------------------------------
 //Check openGL error
-void GlSurface::gl_assert(QString message) {
+void GlContext::gl_assert(QString message) {
     GLenum error = GL_NO_ERROR;
     do {
         error = gl43->glGetError();
@@ -168,7 +168,7 @@ void GlSurface::gl_assert(QString message) {
 
 //---------------------------------------------------------------------
 //Check Qt wrapper error
-void GlSurface::xassert(bool condition, QString message) {
+void GlContext::xassert(bool condition, QString message) {
     if (!condition) {
         qDebug() << message;
     }
@@ -176,7 +176,7 @@ void GlSurface::xassert(bool condition, QString message) {
 
 //---------------------------------------------------------------------
 //Initialize OpenGL context and load shader, must be called before computing
-void GlSurface::setup() {
+void GlContext::setup() {
     //Initialize OpenGL context
     if (!m_context) {
         QSurfaceFormat format;
@@ -211,7 +211,7 @@ void GlSurface::setup() {
 
 //---------------------------------------------------------------------
 //Switch to OpenGL context - required before most operations
-void GlSurface::activate_context() {
+void GlContext::activate_context() {
     xassert(m_context, "OpenGL context is not inited");
     if (!m_context) return;
     m_context->makeCurrent(this);
